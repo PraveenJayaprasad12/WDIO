@@ -1,0 +1,137 @@
+name: WebdriverIO Tests
+
+on:
+  [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        suites: ['smoke', 'regression']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ${{ matrix.suites }} suite
+        run: npm run ${{ matrix.suites }}
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.suites }}
+          path: reports/${{ matrix.suites }}.html
+
+  publish-reports:
+    name: Generate and Publish Reports to GitHub Pages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Needed to push to the gh-pages branch
+      pages: write     # Needed if using GitHub Pages
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Create reports directory
+        run: mkdir reports
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: reports
+          merge-multiple: false
+
+      - name: Generate styled index.html
+        run: |
+          INDEX_FILE="reports/index.html"
+          cat <<EOF > $INDEX_FILE
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Test Reports Index</title>
+              <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      background-color: #f9f9f9;
+                      padding: 20px;
+                      margin: 0;
+                  }
+                  h1 {
+                      color: #333;
+                      text-align: center;
+                      margin-bottom: 30px;
+                  }
+                  ul {
+                      list-style-type: none;
+                      padding: 0;
+                      max-width: 800px;
+                      margin: 0 auto;
+                  }
+                  li {
+                      margin: 10px 0;
+                  }
+                  a {
+                      display: block;
+                      padding: 15px 20px;
+                      background-color: #007BFF;
+                      color: white;
+                      text-decoration: none;
+                      border-radius: 5px;
+                      transition: background-color 0.3s ease;
+                      font-size: 16px;
+                  }
+                  a:hover {
+                      background-color: #0056b3;
+                  }
+              </style>
+          </head>
+          <body>
+              <h1>📊 Test Suite Reports</h1>
+              <ul>
+          EOF
+
+          for dir in reports/*/; do
+            ARTIFACT_NAME=$(basename "$dir")
+            REPORT_FILES=$(find "$dir" -type f -name "*.html")
+            
+            for file in $REPORT_FILES; do
+              RELATIVE_PATH="${file#reports/}"
+              LINK_TEXT="$ARTIFACT_NAME - $(basename "$file")"
+              echo "                  <li><a href=\"$RELATIVE_PATH\">$LINK_TEXT</a></li>" >> $INDEX_FILE
+            done
+          done
+
+          cat <<EOF >> $INDEX_FILE
+              </ul>
+          </body>
+          </html>
+          EOF
+
+      - name: Deploy to GitHub Pages (gh-pages branch)
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          
+          # Create a temp dir and copy reports into it
+          mkdir temp-pages
+          cp -r reports/* temp-pages/
+          
+          cd temp-pages
+          git init
+          git checkout -b gh-pages
+          git add .
+          git commit -m "Deploy reports to GitHub Pages"
+          git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
+
