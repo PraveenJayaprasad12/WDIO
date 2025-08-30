@@ -35,7 +35,9 @@ jobs:
     needs: test
     if: always()
     runs-on: windows-latest
-
+    permissions:
+      contents: write  # Needed to push to the gh-pages branch
+      pages: write     # Needed if using GitHub Pages
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
