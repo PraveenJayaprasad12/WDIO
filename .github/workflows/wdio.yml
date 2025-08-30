@@ -56,9 +56,8 @@ jobs:
         shell: powershell
         run: |
           $indexFile = "reports/index.html"
-          $utf8 = New-Object System.Text.UTF8Encoding $true  # $true = with BOM
           
-          $content = @"
+          @"
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -75,30 +74,24 @@ jobs:
               </style>
           </head>
           <body>
-              <h1>📊 Test Suite Reports</h1>
+              <h1>Test Suite Reports</h1>
               <ul>
-          "@
-          
-          [System.IO.File]::WriteAllText($indexFile, $content, $utf8)
-          
-          # Add HTML links
+          "@ | Out-File $indexFile -Append -Encoding utf8
+          # Loop through subfolders inside reports/
           Get-ChildItem -Directory "reports" | ForEach-Object {
               $artifactName = $_.Name
               Get-ChildItem -Path $_.FullName -Filter *.html -Recurse | ForEach-Object {
                   $relativePath = $_.FullName.Replace("\", "/") -replace "^reports/", ""
                   $linkText = "$artifactName - $($_.Name)"
-                  $line = "        <li><a href=`"$relativePath`">$linkText</a></li>"
-                  [System.IO.File]::AppendAllText($indexFile, "$line`r`n", $utf8)
+                  "        <li><a href=""$relativePath"">$linkText</a></li>" | Out-File $indexFile -Append -Encoding utf8
               }
           }
           
-          # Close the HTML
-          $footer = @"
+          @"
               </ul>
           </body>
           </html>
-          "@
-          [System.IO.File]::AppendAllText($indexFile, $footer, $utf8)
+          "@ | Out-File $indexFile -Append -Encoding utf8
 
       - name: Deploy to GitHub Pages (gh-pages branch)
         shell: powershell
