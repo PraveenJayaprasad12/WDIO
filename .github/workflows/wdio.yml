@@ -55,7 +55,8 @@ jobs:
       - name: Generate styled index.html
         shell: powershell
         run: |
-          $indexFile = "reports\index.html"
+          $indexFile = "reports/index.html"
+          
           @"
           <!DOCTYPE html>
           <html lang="en">
@@ -75,17 +76,18 @@ jobs:
           <body>
               <h1>📊 Test Suite Reports</h1>
               <ul>
-          "@ | Out-File $indexFile -Encoding utf8
+          "@ | Out-File $indexFile -Encoding utf8BOM
 
+          # Loop through subfolders inside reports/
           Get-ChildItem -Directory "reports" | ForEach-Object {
               $artifactName = $_.Name
               Get-ChildItem -Path $_.FullName -Filter *.html -Recurse | ForEach-Object {
-                  $relativePath = $_.FullName -replace "^reports[\\/]", ""
+                  $relativePath = $_.FullName.Replace("\", "/") -replace "^reports/", ""
                   $linkText = "$artifactName - $($_.Name)"
-                  "              <li><a href=""$relativePath"">$linkText</a></li>" | Out-File $indexFile -Append -Encoding utf8
+                  "        <li><a href=""$relativePath"">$linkText</a></li>" | Out-File $indexFile -Append -Encoding utf8
               }
           }
-
+          
           @"
               </ul>
           </body>
