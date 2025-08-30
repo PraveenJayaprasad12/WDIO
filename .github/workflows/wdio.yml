@@ -31,6 +31,7 @@ jobs:
           name: ${{ matrix.suites }}
 
   publish-reports:
+    needs: test
     if: always()
     runs-on: windows-latest
 
