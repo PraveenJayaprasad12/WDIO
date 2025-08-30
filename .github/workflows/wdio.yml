@@ -91,7 +91,6 @@ jobs:
           "@ | Out-File $indexFile -Append -Encoding utf8
 
       - name: Deploy to GitHub Pages (gh-pages branch)
-        if: inputs.upload == true
         shell: powershell
         run: |
           git config --global user.name "github-actions"
