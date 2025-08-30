@@ -81,7 +81,7 @@ jobs:
           Get-ChildItem -Directory "reports" | ForEach-Object {
               $artifactName = $_.Name
               Get-ChildItem -Path $_.FullName -Filter *.html -Recurse | ForEach-Object {
-                  $relativePath = Resolve-Path -Relative $_.FullName | ForEach-Object { $_ -replace "\\", "/" }
+                 $relativePath = $_.FullName.Replace("\", "/") -replace "^reports/", ""
                   $linkText = "$artifactName - $($_.Name)"
                   "        <li><a href=""$relativePath"">$linkText</a></li>" | Out-File $indexFile -Append -Encoding utf8
               }
