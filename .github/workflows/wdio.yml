@@ -29,6 +29,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.suites }}
+          path: reports/test-report.html
 
   publish-reports:
     needs: test
