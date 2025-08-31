@@ -81,7 +81,7 @@ jobs:
           Get-ChildItem -Directory "reports" | ForEach-Object {
               $artifactName = $_.Name
               Get-ChildItem -Path $_.FullName -Filter *.html -Recurse | ForEach-Object {
-                 $relativePath = Resolve-Path -Relative $_.FullName | ForEach-Object { $_ -replace "^.*?reports[\\/]", "smoke/" -replace "\\", "/" } 
+                 $relativePath = Resolve-Path -Relative $_.FullName | ForEach-Object { $_ -replace "^.*?reports[\\/]", "/" -replace "\\", "/" } 
                   $linkText = "$artifactName - $($_.Name)"
                   "        <li><a href=""$relativePath"">$linkText</a></li>" | Out-File $indexFile -Append -Encoding utf8
               }
@@ -112,7 +112,7 @@ jobs:
           # Go into the temp-pages directory
           Set-Location temp-pages
       
-          git add reports
+          git add smoke
           if (-not (git diff --cached --quiet)) {
             git commit -m "Update test reports in reports/ folder"
             $repoUrl = "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
