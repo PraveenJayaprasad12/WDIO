@@ -81,7 +81,7 @@ jobs:
           Get-ChildItem -Directory "reports" | ForEach-Object {
               $artifactName = $_.Name
               Get-ChildItem -Path $_.FullName -Filter *.html -Recurse | ForEach-Object {
-                 $relativePath = Resolve-Path -Relative $_.FullName | ForEach-Object { $_ -replace "^.*?reports[\\/]", "" -replace "\\", "/" } 
+                 $relativePath = Resolve-Path -Relative $_.FullName | ForEach-Object { $_ -replace "^.*?reports[\\/]", "smoke/" -replace "\\", "/" } 
                   $linkText = "$artifactName - $($_.Name)"
                   "        <li><a href=""$relativePath"">$linkText</a></li>" | Out-File $indexFile -Append -Encoding utf8
               }
@@ -93,21 +93,33 @@ jobs:
           </html>
           "@ | Out-File $indexFile -Append -Encoding utf8
 
-      - name: Deploy to GitHub Pages (gh-pages branch)
+      - name: Deploy reports to GitHub Pages (reports/ subfolder only)
         shell: powershell
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git config --global core.autocrlf false
-
-          New-Item -ItemType Directory -Path temp-pages -Force
-          Copy-Item -Recurse -Path reports\* -Destination temp-pages
-
+      
+          # Clone the existing gh-pages branch into temp-pages
+          git clone --branch gh-pages "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" temp-pages
+      
+          # Create reports folder if it doesn't exist
+          New-Item -ItemType Directory -Path temp-pages\smoke -Force
+      
+          # Copy new reports into the reports/ directory
+          Copy-Item -Recurse -Force reports\* temp-pages\smoke\
+      
+          # Go into the temp-pages directory
           Set-Location temp-pages
-          git init
-          git checkout -b gh-pages
-          git add .
-          git commit -m "Deploy reports to GitHub Pages"
+      
+          git add reports
+          if (-not (git diff --cached --quiet)) {
+            git commit -m "Update test reports in reports/ folder"
+            $repoUrl = "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+            git push --force $repoUrl gh-pages
+          } else {
+            Write-Host "No changes to commit"
+          }
 
           $repoUrl = "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git push --force $repoUrl gh-pages
