@@ -1,3 +1,24 @@
+Skip to content
+Navigation Menu
+PraveenJayaprasad12
+WDIO
+
+Type / to search
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+Settings
+WebdriverIO Tests
+Update wdio.yml #18
+Jobs
+Run details
+Workflow file for this run
+.github/workflows/wdio.yml at e50d966
 name: WebdriverIO Tests
 
 on:
@@ -81,7 +102,7 @@ jobs:
           Get-ChildItem -Directory "reports" | ForEach-Object {
               $artifactName = $_.Name
               Get-ChildItem -Path $_.FullName -Filter *.html -Recurse | ForEach-Object {
-                 $relativePath = Resolve-Path -Relative $_.FullName | ForEach-Object { $_ -replace "^.*?reports[\\/]", "smoke/" -replace "\\", "/" } 
+                 $relativePath = Resolve-Path -Relative $_.FullName | ForEach-Object { $_ -replace "^.*?reports[\\/]", "" -replace "\\", "/" } 
                   $linkText = "$artifactName - $($_.Name)"
                   "        <li><a href=""$relativePath"">$linkText</a></li>" | Out-File $indexFile -Append -Encoding utf8
               }
@@ -92,35 +113,19 @@ jobs:
           </body>
           </html>
           "@ | Out-File $indexFile -Append -Encoding utf8
-
-      - name: Deploy reports to GitHub Pages (reports/ subfolder only)
+      - name: Deploy to GitHub Pages (gh-pages branch)
         shell: powershell
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git config --global core.autocrlf false
-      
-          # Clone the existing gh-pages branch into temp-pages
-          git clone --branch gh-pages "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" temp-pages
-      
-          # Create reports folder if it doesn't exist
-          New-Item -ItemType Directory -Path temp-pages\smoke -Force
-      
-          # Copy new reports into the reports/ directory
-          Copy-Item -Recurse -Force reports\* temp-pages\smoke\
-      
-          # Go into the temp-pages directory
+          New-Item -ItemType Directory -Path temp-pages -Force
+          Copy-Item -Recurse -Path reports\* -Destination temp-pages
           Set-Location temp-pages
-      
-          git add smoke
-          if (-not (git diff --cached --quiet)) {
-            git commit -m "Update test reports in reports/ folder"
-            $repoUrl = "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
-            git push --force $repoUrl gh-pages
-          } else {
-            Write-Host "No changes to commit"
-          }
-
+          git init
+          git checkout -b gh-pages
+          git add .
+          git commit -m "Deploy reports to GitHub Pages"
           $repoUrl = "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git push --force $repoUrl gh-pages
-
+Update wdio.yml · PraveenJayaprasad12/WDIO@e50d966
