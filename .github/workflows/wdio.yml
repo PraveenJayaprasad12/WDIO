@@ -92,6 +92,11 @@ jobs:
           </body>
           </html>
           "@ | Out-File $indexFile -Append -Encoding utf8
+      - name: Upload zipped report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: consolidated-report
+          path: reports
       - name: Deploy to GitHub Pages (gh-pages branch)
         shell: powershell
         run: |
