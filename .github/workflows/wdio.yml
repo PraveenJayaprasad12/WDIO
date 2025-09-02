@@ -86,7 +86,7 @@ jobs:
           $allFiles = Get-ChildItem -Path "reports" -Recurse -File
       
           foreach ($file in $allFiles) {
-            if ($file.Name -like "*$searchString*") {
+            if ($file.FullName -like "*$searchString*") {
               Write-Host "✅ Removing: $($file.FullName)"
               Remove-Item -Force $file.FullName
             } else {
