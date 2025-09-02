@@ -52,6 +52,14 @@ jobs:
           path: reports
           merge-multiple: false
 
+      - name: Keep only files containing 'html'
+        shell: powershell
+        run: |
+          $searchString = "smok"
+          Get-ChildItem -Path "reports" -Recurse -File | Where-Object {
+            $_.Name -notlike "*$searchString*"
+          } | Remove-Item -Force
+
       - name: Generate styled index.html
         shell: powershell
         run: |
