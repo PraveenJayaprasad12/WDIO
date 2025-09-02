@@ -1,7 +1,7 @@
 name: WebdriverIO Tests
 
 on:
-  [push]
+  push:
 
 jobs:
   test:
@@ -36,8 +36,9 @@ jobs:
     if: always()
     runs-on: windows-latest
     permissions:
-      contents: write  # Needed to push to the gh-pages branch
-      pages: write     # Needed if using GitHub Pages
+      contents: write
+      pages: write
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -56,13 +57,13 @@ jobs:
         shell: powershell
         run: |
           $indexFile = "reports/index.html"
-          
+
           @"
           <!DOCTYPE html>
-          <html lang="en">
+          <html lang='en'>
           <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <meta charset='UTF-8'>
+              <meta name='viewport' content='width=device-width, initial-scale=1.0'>
               <title>Test Reports Index</title>
               <style>
                   :root {
@@ -72,7 +73,6 @@ jobs:
                       --hover: #0056b3;
                       --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                   }
-      
                   body {
                       font-family: var(--font);
                       background-color: var(--background);
@@ -80,14 +80,12 @@ jobs:
                       margin: 0;
                       padding: 30px;
                   }
-      
                   h1 {
                       text-align: center;
                       margin-bottom: 40px;
                       font-size: 2.5rem;
                       color: var(--primary);
                   }
-      
                   #searchBox {
                       display: block;
                       margin: 0 auto 30px;
@@ -98,19 +96,16 @@ jobs:
                       border-radius: 8px;
                       font-size: 16px;
                   }
-      
                   ul {
                       list-style-type: none;
                       padding: 0;
                       max-width: 800px;
                       margin: 0 auto;
                   }
-      
                   li {
                       margin: 12px 0;
                       transition: transform 0.2s ease;
                   }
-      
                   a {
                       display: flex;
                       justify-content: space-between;
@@ -123,12 +118,10 @@ jobs:
                       font-size: 16px;
                       transition: background-color 0.3s ease;
                   }
-      
                   a:hover {
                       background-color: var(--hover);
                       transform: scale(1.02);
                   }
-      
                   .badge {
                       background-color: white;
                       color: var(--primary);
@@ -151,40 +144,48 @@ jobs:
           </head>
           <body>
               <h1>📊 Test Suite Reports</h1>
-              <input type="text" id="searchBox" onkeyup="filterReports()" placeholder="🔍 Filter reports by name...">
-              <ul> "@ | Out-File $indexFile -Encoding utf8
-      
-          # Loop through subfolders inside reports/
+              <input type='text' id='searchBox' onkeyup='filterReports()' placeholder='🔍 Filter reports by name...'>
+              <ul>
+          "@ | Out-File $indexFile -Encoding utf8
+
+          # Add report links dynamically
           Get-ChildItem -Directory "reports" | ForEach-Object {
               $artifactName = $_.Name
               Get-ChildItem -Path $_.FullName -Filter *.html -Recurse | ForEach-Object {
                   $relativePath = $_.FullName -replace "^.*?reports[\\/]", "" -replace "\\", "/"
-                  $linkText = "$artifactName - $($_.Name)"
-                  "    <li><a href=`"$relativePath`">$($_.Name)<span class='badge'>$artifactName</span></a></li>" | Out-File $indexFile -Append -Encoding utf8
+                  $fileName = $_.Name
+                  "    <li><a href=`"$relativePath`">$fileName<span class='badge'>$artifactName</span></a></li>" | Out-File $indexFile -Append -Encoding utf8
               }
           }
-      
+
           @"
               </ul>
           </body>
-          </html> "@ | Out-File $indexFile -Append -Encoding utf8
+          </html>
+          "@ | Out-File $indexFile -Append -Encoding utf8
+
       - name: Upload zipped report as artifact
         uses: actions/upload-artifact@v4
         with:
           name: consolidated-report
           path: reports
+
       - name: Deploy to GitHub Pages (gh-pages branch)
         shell: powershell
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git config --global core.autocrlf false
+
           New-Item -ItemType Directory -Path temp-pages -Force
           Copy-Item -Recurse -Path reports\* -Destination temp-pages
+
           Set-Location temp-pages
           git init
           git checkout -b gh-pages
           git add .
+
           git commit -m "Deploy reports to GitHub Pages"
           $repoUrl = "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git push --force $repoUrl gh-pages
+
