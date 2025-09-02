@@ -4,12 +4,12 @@ on:
   [push]
 
 jobs:
-  test:
+  test1:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        suites: ['smoke', 'regression']
+        suites: ['smoke']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,8 +31,35 @@ jobs:
           name: ${{ matrix.suites }} HTML
           path: reports/test-report.html
 
+  test2:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        suites: ['regression']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ${{ matrix.suites }} suite
+        run: npm run ${{ matrix.suites }}
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.suites }}
+          path: reports/test-report.html
+
   publish-reports:
-    needs: test
+    needs: [test1, test2]
     if: always()
     runs-on: windows-latest
     permissions:
