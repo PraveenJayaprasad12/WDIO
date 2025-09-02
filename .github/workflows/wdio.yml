@@ -55,7 +55,7 @@ jobs:
       - name: Upload reports
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.suites }}
+          name: ${{ matrix.suites }} Allure
           path: reports/test-report.html
 
   publish-reports:
@@ -82,15 +82,15 @@ jobs:
       - name: Keep only files with "html" in the name
         shell: powershell
         run: |
-          $searchString = "html"
+          $searchString = "Allure"
           $allFiles = Get-ChildItem -Path "reports" -Recurse -File
       
           foreach ($file in $allFiles) {
             if ($file.Name -like "*$searchString*") {
-              Write-Host "✅ Keeping: $($file.FullName)"
-            } else {
-              Write-Host "🗑️ Removing: $($file.FullName)"
+              Write-Host "✅ Removing: $($file.FullName)"
               Remove-Item -Force $file.FullName
+            } else {
+              Write-Host "🗑️ Keeping: $($file.FullName)"
             }
           }
 
