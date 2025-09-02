@@ -1,24 +1,3 @@
-Skip to content
-Navigation Menu
-PraveenJayaprasad12
-WDIO
-
-Type / to search
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-WebdriverIO Tests
-Update wdio.yml #18
-Jobs
-Run details
-Workflow file for this run
-.github/workflows/wdio.yml at e50d966
 name: WebdriverIO Tests
 
 on:
@@ -128,4 +107,3 @@ jobs:
           git commit -m "Deploy reports to GitHub Pages"
           $repoUrl = "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git push --force $repoUrl gh-pages
-Update wdio.yml · PraveenJayaprasad12/WDIO@e50d966
