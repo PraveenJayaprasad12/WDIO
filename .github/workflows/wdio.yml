@@ -79,13 +79,21 @@ jobs:
           path: reports
           merge-multiple: false
 
-      - name: Keep only files containing 'HTML' in the filename
+      - name: Keep only files with "html" in the name
         shell: powershell
         run: |
-          $searchString = "regression"
-          Get-ChildItem -Path "reports" -Recurse -File | Where-Object {
-            $_.Name -notmatch $searchString
-          } | Remove-Item -Force
+          $searchString = "html"
+          $allFiles = Get-ChildItem -Path "reports" -Recurse -File
+      
+          foreach ($file in $allFiles) {
+            if ($file.Name -like "*$searchString*") {
+              Write-Host "✅ Keeping: $($file.FullName)"
+            } else {
+              Write-Host "🗑️ Removing: $($file.FullName)"
+              Remove-Item -Force $file.FullName
+            }
+          }
+
 
 
       - name: Generate styled index.html
