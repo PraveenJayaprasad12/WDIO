@@ -82,7 +82,7 @@ jobs:
       - name: Keep only files containing 'HTML' in the filename
         shell: powershell
         run: |
-          $searchString = "HTML"
+          $searchString = "regression"
           Get-ChildItem -Path "reports" -Recurse -File | Where-Object {
             $_.Name -notmatch $searchString
           } | Remove-Item -Force
