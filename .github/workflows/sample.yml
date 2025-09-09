@@ -1,0 +1,14 @@
+name: Sleep for 1 Hour
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sleep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start sleeping
+        run: |
+          echo "Starting sleep for 1 hour..."
+          sleep 3600
+          echo "Done sleeping."
