@@ -8,6 +8,10 @@ on:
         required: true
         type: string
 
+permissions:
+  actions: write  # ✅ Needed to cancel workflow runs
+  contents: read
+
 jobs:
   cancel-run:
     runs-on: ubuntu-latest
