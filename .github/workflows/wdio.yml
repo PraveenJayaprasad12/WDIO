@@ -100,7 +100,9 @@ jobs:
         shell: powershell
         run: |
           $runUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          ./.github/scripts/generate-html.ps1 -runUrl $runUrl
+          $runDate = (Get-Date).ToString("yyyy-MM-dd HH:mm")
+          $suiteName = "${{ inputs.suite_name }}"  # assuming you use inputs
+          ./.github/scripts/generate-html.ps1 -runUrl $runUrl -runDate $runDate -suiteName $suiteName
       - name: Upload zipped report as artifact
         uses: actions/upload-artifact@v4
         with:
