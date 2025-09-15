@@ -1,5 +1,7 @@
 param (
-    [string]$runUrl
+    [string]$runUrl,
+    [string]$runDate,
+    [string]$suiteName
 )
 
 $indexFile = "reports/index.html"
@@ -14,7 +16,9 @@ $indexFile = "reports/index.html"
     <style>
         body { font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; margin: 0; }
         h1 { color: #333; text-align: center; margin-bottom: 10px; }
-        p { text-align: center; margin-bottom: 30px; }
+        .details { background-color: #fff; border: 1px solid #ccc; max-width: 800px; margin: 0 auto 30px auto; padding: 20px; border-radius: 8px; }
+        .details h2 { margin-top: 0; color: #555; font-size: 20px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        .details p { margin: 8px 0; font-size: 16px; }
         ul { list-style-type: none; padding: 0; max-width: 800px; margin: 0 auto; }
         li { margin: 10px 0; }
         a { display: block; padding: 15px 20px; background-color: #007BFF; color: white; text-decoration: none; border-radius: 5px; transition: background-color 0.3s ease; font-size: 16px; }
@@ -25,27 +29,39 @@ $indexFile = "reports/index.html"
     <h1>Test Suite Reports</h1>
 "@ | Out-File $indexFile -Encoding utf8
 
-# Optional GitHub Actions Run URL section
+# Add "Execution Details" section
+@"
+    <div class="details">
+        <h2>Execution Details</h2>
+"@ | Out-File $indexFile -Append -Encoding utf8
+
+if ($suiteName) {
+    "        <p><strong>Suite Name:</strong> $suiteName</p>" | Out-File $indexFile -Append -Encoding utf8
+}
+if ($runDate) {
+    "        <p><strong>Date:</strong> $runDate</p>" | Out-File $indexFile -Append -Encoding utf8
+}
 if ($runUrl) {
-    "    <p><a href='$runUrl' target='_blank'> View this GitHub Actions Run</a></p>" | Out-File $indexFile -Append -Encoding utf8
+    "        <p><strong>GitHub Run:</strong> <a href='$runUrl' target='_blank'>$runUrl</a></p>" | Out-File $indexFile -Append -Encoding utf8
 }
 
-# Start the list of reports
-"    <ul>" | Out-File $indexFile -Append -Encoding utf8
+"    </div>" | Out-File $indexFile -Append -Encoding utf8
 
-# Loop through subfolders inside reports/
+# Start list
+"<ul>" | Out-File $indexFile -Append -Encoding utf8
+
+# Add links to reports
 Get-ChildItem -Directory "reports" | ForEach-Object {
     $artifactName = $_.Name
     Get-ChildItem -Path $_.FullName -Filter *.html -Recurse | ForEach-Object {
         $relativePath = Resolve-Path -Relative $_.FullName | ForEach-Object { $_ -replace "^.*?reports[\\/]", "" -replace "\\", "/" } 
         $linkText = "$artifactName - $($_.Name)"
-        "        <li><a href=""$relativePath"">$linkText</a></li>" | Out-File $indexFile -Append -Encoding utf8
+        "<li><a href=""$relativePath"">$linkText</a></li>" | Out-File $indexFile -Append -Encoding utf8
     }
 }
 
-# Close HTML
 @"
-    </ul>
+</ul>
 </body>
 </html>
 "@ | Out-File $indexFile -Append -Encoding utf8
