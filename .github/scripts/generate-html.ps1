@@ -1,3 +1,7 @@
+param (
+    [string]$runUrl
+)
+
 $indexFile = "reports/index.html"
 
 @"
@@ -20,6 +24,11 @@ $indexFile = "reports/index.html"
     <h1>Test Suite Reports</h1>
     <ul>
 "@ | Out-File $indexFile -Encoding utf8
+
+# Optional GitHub Actions Run URL section
+if ($runUrl) {
+    "    <p><a href='$runUrl' target='_blank'>🔗 View this GitHub Actions Run</a></p>" | Out-File $indexFile -Append -Encoding utf8
+}
 
 # Loop through subfolders inside reports/
 Get-ChildItem -Directory "reports" | ForEach-Object {
