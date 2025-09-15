@@ -1,7 +1,7 @@
 name: WebdriverIO Tests
 
 on:
-  [push]
+  workflow_dispatch:
 
 jobs:
   test1:
@@ -98,7 +98,9 @@ jobs:
 
       - name: Generate styled index.html
         shell: powershell
-        run: ./.github/scripts/generate-html.ps1
+        run: |
+          $runUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          ./.github/scripts/generate-html.ps1 -runUrl $runUrl
       - name: Upload zipped report as artifact
         uses: actions/upload-artifact@v4
         with:
