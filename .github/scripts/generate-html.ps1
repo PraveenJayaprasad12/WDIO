@@ -27,7 +27,7 @@ $indexFile = "reports/index.html"
 
 # Optional GitHub Actions Run URL section
 if ($runUrl) {
-    "    <p><a href='$runUrl' target='_blank'>🔗 View this GitHub Actions Run</a></p>" | Out-File $indexFile -Append -Encoding utf8
+    "    <p><a href='$runUrl' target='_blank'> View this GitHub Actions Run</a></p>" | Out-File $indexFile -Append -Encoding utf8
 }
 
 # Start the list of reports
