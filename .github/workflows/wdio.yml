@@ -35,7 +35,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.suites }} HTML
-          path: artifacts/test-report.html
+          path: artifacts/test-report.txt
 
   test2:
     runs-on: ubuntu-latest
@@ -63,6 +63,12 @@ jobs:
         with:
           name: ${{ matrix.suites }} Allure
           path: reports/test-report.html
+
+      - name: Upload test-report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.suites }} HTML
+          path: artifacts/test-report.txt
 
   publish-reports:
     needs: [test1, test2]
