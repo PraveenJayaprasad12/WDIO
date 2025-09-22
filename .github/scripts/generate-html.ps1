@@ -64,7 +64,7 @@ Get-ChildItem -Directory "reports" | ForEach-Object {
     $passedTests = 0
     $passPercentageText = ""
 
-    $reportFilePath = Join-Path $artifactPath "test-report.txt"
+    $reportFilePath = Join-Path $artifactPath "artifacts/test-report.txt"
     if (Test-Path $reportFilePath) {
         $reportText = Get-Content $reportFilePath -Raw
 
