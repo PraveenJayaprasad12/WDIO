@@ -97,6 +97,8 @@ Get-ChildItem -Directory "reports" | ForEach-Object {
 # Add overall pass percentage
 if ($totalTestsOverall -gt 0) {
     $overallPass = [math]::Round(($passedTestsOverall / $totalTestsOverall) * 100, 2)
+    "<div class='details'><p><strong>Total Tests:</strong> $totalTestsOverall%</p></div>" | Out-File $indexFile -Append -Encoding utf8
+    "<div class='details'><p><strong>Passed Tests:</strong> $passedTestsOverall%</p></div>" | Out-File $indexFile -Append -Encoding utf8
     "<div class='details'><p><strong>Overall Pass Percentage:</strong> $overallPass%</p></div>" | Out-File $indexFile -Append -Encoding utf8
 }
 
