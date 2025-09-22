@@ -68,9 +68,7 @@ Get-ChildItem -Directory "reports" | ForEach-Object {
     if (Test-Path $reportFilePath) {
         $reportText = Get-Content $reportFilePath -Raw
 
-        if ($reportText -match "Total Tests\s*:\s*(\d+)" -and
-            $reportText -match "Passed Tests\s*:\s*(\d+)" -and
-            $reportText -match "Failed Tests\s*:\s*(\d+)") {
+        if ($reportText -match "Total Tests\s*:\s*(\d+)") {
 
             $totalTests = [int]$matches[1]
             $passedTests = [int]$matches[2]
