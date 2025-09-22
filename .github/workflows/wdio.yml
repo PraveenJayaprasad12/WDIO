@@ -31,6 +31,12 @@ jobs:
           name: ${{ matrix.suites }} HTML
           path: reports/test-report.html
 
+      - name: Upload test-report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.suites }} HTML
+          path: artifacts/test-report.html
+
   test2:
     runs-on: ubuntu-latest
     strategy:
