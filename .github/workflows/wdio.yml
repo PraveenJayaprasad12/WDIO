@@ -28,7 +28,7 @@ jobs:
       - name: Upload reports
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.suites }} Allure
+          name: ${{ matrix.suites }} HTML
           path: |
             reports/test-report.html
             artifacts/test-report.txt
@@ -57,7 +57,7 @@ jobs:
       - name: Upload reports
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.suites }} Allure
+          name: ${{ matrix.suites }} HTML
           path: |
             reports/test-report.html
             artifacts/test-report.txt
