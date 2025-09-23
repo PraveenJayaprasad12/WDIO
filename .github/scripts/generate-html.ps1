@@ -6,11 +6,9 @@ param (
 
 $indexFile = "reports/index.html"
 
-# Initialize counters for overall pass calculation
 $totalTestsOverall = 0
 $passedTestsOverall = 0
 
-# Start writing HTML
 @"
 <!DOCTYPE html>
 <html lang="en">
@@ -20,8 +18,8 @@ $passedTestsOverall = 0
     <title>Test Reports Index</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #e3f2fd, #ffffff);
             margin: 0;
             padding: 20px;
             display: flex;
@@ -30,9 +28,10 @@ $passedTestsOverall = 0
         }
 
         h1 {
-            color: #333;
+            color: #004085;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px #b3d7ff;
         }
 
         .bottom-section {
@@ -43,55 +42,66 @@ $passedTestsOverall = 0
 
         .report-links, .execution-details {
             width: 48%;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+            background: linear-gradient(135deg, #ffffff, #e7f1ff);
+            border: 1px solid #b3d7ff;
+            border-radius: 12px;
             padding: 20px;
             box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .report-links:hover, .execution-details:hover {
+            transform: translateY(-2px);
         }
 
         .report-links h2, .execution-details h2 {
             margin-top: 0;
-            color: #555;
+            color: #0056b3;
             font-size: 20px;
-            border-bottom: 1px solid #ccc;
+            border-bottom: 2px solid #b3d7ff;
             padding-bottom: 5px;
+            margin-bottom: 15px;
         }
 
-        ul {
-            list-style-type: none;
-            padding: 0;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
         }
 
-        li {
-            margin: 10px 0;
-        }
-
-        a {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+        th, td {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
             font-size: 16px;
-            margin-right: 10px;
         }
 
-        a:hover {
-            background-color: #0056b3;
+        th {
+            background: linear-gradient(145deg, #007bff, #339bff);
+            color: white;
+            border-radius: 4px 4px 0 0;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+        }
+
+        tr:hover {
+            background-color: #f1f9ff;
+            transition: background-color 0.2s;
+        }
+
+        td a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        td a:hover {
+            text-decoration: underline;
         }
 
         .percentage {
             font-weight: bold;
             font-size: 16px;
             color: #333;
-        }
-
-        .execution-details p {
-            margin: 8px 0;
-            font-size: 16px;
         }
     </style>
 </head>
@@ -101,7 +111,14 @@ $passedTestsOverall = 0
     <div class="bottom-section">
         <div class="report-links">
             <h2>Report Links</h2>
-            <ul>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Report</th>
+                        <th>Pass %</th>
+                    </tr>
+                </thead>
+                <tbody>
 "@ | Out-File $indexFile -Encoding utf8
 
 # Process each report folder
@@ -109,7 +126,6 @@ Get-ChildItem -Directory "reports" | ForEach-Object {
     $artifactName = $_.Name
     $artifactPath = $_.FullName
 
-    # Initialize per-report values
     $totalTests = 0
     $passedTests = 0
     $passPercentageText = ""
@@ -117,8 +133,6 @@ Get-ChildItem -Directory "reports" | ForEach-Object {
     $reportFilePath = Join-Path $artifactPath "artifacts/test-report.txt"
     if (Test-Path $reportFilePath) {
         $reportText = Get-Content $reportFilePath -Raw
-
-        # Match single-line test summary
         if ($reportText -match "Total Tests\s*:\s*(\d+)\s*,\s*Passed Tests\s*:\s*(\d+)\s*,\s*Failed Tests\s*:\s*(\d+)") {
             $totalTests = [int]$matches[1]
             $passedTests = [int]$matches[2]
@@ -133,44 +147,44 @@ Get-ChildItem -Directory "reports" | ForEach-Object {
         }
     }
 
-    # Add HTML report links
     Get-ChildItem -Path $artifactPath -Filter *.html -Recurse | ForEach-Object {
         $relativePath = Resolve-Path -Relative $_.FullName | ForEach-Object { $_ -replace "^.*?reports[\\/]", "" -replace "\\", "/" }
         $linkText = "$artifactName - $($_.Name)"
-        "<li><a href=""$relativePath"">$linkText</a> $passPercentageText</li>" | Out-File $indexFile -Append -Encoding utf8
+        "<tr><td><a href=""$relativePath"">$linkText</a></td><td>$passPercentageText</td></tr>" | Out-File $indexFile -Append -Encoding utf8
     }
 }
 
-# Close links list and start details section
 @"
-            </ul>
+                </tbody>
+            </table>
         </div>
 
         <div class="execution-details">
             <h2>Execution Details</h2>
+            <table>
+                <tbody>
 "@ | Out-File $indexFile -Append -Encoding utf8
 
-# Execution metadata
 if ($suiteName) {
-    "            <p><strong>Suite Name:</strong> $suiteName</p>" | Out-File $indexFile -Append -Encoding utf8
+    "                    <tr><td><strong>Suite Name:</strong></td><td>$suiteName</td></tr>" | Out-File $indexFile -Append -Encoding utf8
 }
 if ($runDate) {
-    "            <p><strong>Date:</strong> $runDate</p>" | Out-File $indexFile -Append -Encoding utf8
+    "                    <tr><td><strong>Date:</strong></td><td>$runDate</td></tr>" | Out-File $indexFile -Append -Encoding utf8
 }
 if ($runUrl) {
-    "            <p><strong>GitHub Run:</strong> <a href='$runUrl' target='_blank'>$runUrl</a></p>" | Out-File $indexFile -Append -Encoding utf8
+    "                    <tr><td><strong>GitHub Run:</strong></td><td><a href='$runUrl' target='_blank'>$runUrl</a></td></tr>" | Out-File $indexFile -Append -Encoding utf8
 }
 
-# Overall summary
 if ($totalTestsOverall -gt 0) {
     $overallPass = [math]::Round(($passedTestsOverall / $totalTestsOverall) * 100, 2)
-    "            <p><strong>Total Tests:</strong> $totalTestsOverall</p>" | Out-File $indexFile -Append -Encoding utf8
-    "            <p><strong>Passed Tests:</strong> $passedTestsOverall</p>" | Out-File $indexFile -Append -Encoding utf8
-    "            <p><strong>Overall Pass Percentage:</strong> $overallPass%</p>" | Out-File $indexFile -Append -Encoding utf8
+    "                    <tr><td><strong>Total Tests:</strong></td><td>$totalTestsOverall</td></tr>" | Out-File $indexFile -Append -Encoding utf8
+    "                    <tr><td><strong>Passed Tests:</strong></td><td>$passedTestsOverall</td></tr>" | Out-File $indexFile -Append -Encoding utf8
+    "                    <tr><td><strong>Overall Pass Percentage:</strong></td><td>$overallPass%</td></tr>" | Out-File $indexFile -Append -Encoding utf8
 }
 
-# Close out the HTML
 @"
+                </tbody>
+            </table>
         </div>
     </div>
 </body>
