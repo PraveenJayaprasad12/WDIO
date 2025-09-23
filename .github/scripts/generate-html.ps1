@@ -142,14 +142,14 @@ Get-ChildItem -Directory "reports" | ForEach-Object {
 
             if ($totalTests -gt 0) {
                 $passPercent = [math]::Round(($passedTests / $totalTests) * 100, 2)
-                $passPercentageText = "<span class='percentage'>Pass: $passPercent%</span>"
+                $passPercentageText = "<span class='percentage'>$passPercent%</span>"
             }
         }
     }
 
     Get-ChildItem -Path $artifactPath -Filter *.html -Recurse | ForEach-Object {
         $relativePath = Resolve-Path -Relative $_.FullName | ForEach-Object { $_ -replace "^.*?reports[\\/]", "" -replace "\\", "/" }
-        $linkText = "$artifactName - $($_.Name)"
+        $linkText = "$artifactName"
         "<tr><td><a href=""$relativePath"">$linkText</a></td><td>$passPercentageText</td></tr>" | Out-File $indexFile -Append -Encoding utf8
     }
 }
@@ -172,7 +172,7 @@ if ($runDate) {
     "                    <tr><td><strong>Date:</strong></td><td>$runDate</td></tr>" | Out-File $indexFile -Append -Encoding utf8
 }
 if ($runUrl) {
-    "                    <tr><td><strong>GitHub Run:</strong></td><td><a href='$runUrl' target='_blank'>$runUrl</a></td></tr>" | Out-File $indexFile -Append -Encoding utf8
+    "                    <tr><td><strong>GitHub Run:</strong></td><td><a href='$runUrl' target='_blank'>Click Here</a></td></tr>" | Out-File $indexFile -Append -Encoding utf8
 }
 
 if ($totalTestsOverall -gt 0) {
