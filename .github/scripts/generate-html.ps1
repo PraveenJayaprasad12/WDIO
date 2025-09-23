@@ -80,7 +80,6 @@ $passedTestsOverall = 0
         th {
             background: linear-gradient(145deg, #007bff, #339bff);
             color: white;
-            border-radius: 4px 4px 0 0;
             text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
         }
 
@@ -104,6 +103,7 @@ $passedTestsOverall = 0
             color: #333;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Test Suite Reports</h1>
@@ -142,14 +142,14 @@ Get-ChildItem -Directory "reports" | ForEach-Object {
 
             if ($totalTests -gt 0) {
                 $passPercent = [math]::Round(($passedTests / $totalTests) * 100, 2)
-                $passPercentageText = "<span class='percentage'>$passPercent%</span>"
+                $passPercentageText = "<span class='percentage'>Pass: $passPercent%</span>"
             }
         }
     }
 
     Get-ChildItem -Path $artifactPath -Filter *.html -Recurse | ForEach-Object {
         $relativePath = Resolve-Path -Relative $_.FullName | ForEach-Object { $_ -replace "^.*?reports[\\/]", "" -replace "\\", "/" }
-        $linkText = "$artifactName"
+        $linkText = "$artifactName - $($_.Name)"
         "<tr><td><a href=""$relativePath"">$linkText</a></td><td>$passPercentageText</td></tr>" | Out-File $indexFile -Append -Encoding utf8
     }
 }
@@ -172,11 +172,12 @@ if ($runDate) {
     "                    <tr><td><strong>Date:</strong></td><td>$runDate</td></tr>" | Out-File $indexFile -Append -Encoding utf8
 }
 if ($runUrl) {
-    "                    <tr><td><strong>GitHub Run:</strong></td><td><a href='$runUrl' target='_blank'>Click Here</a></td></tr>" | Out-File $indexFile -Append -Encoding utf8
+    "                    <tr><td><strong>GitHub Run:</strong></td><td><a href='$runUrl' target='_blank'>$runUrl</a></td></tr>" | Out-File $indexFile -Append -Encoding utf8
 }
 
 if ($totalTestsOverall -gt 0) {
     $overallPass = [math]::Round(($passedTestsOverall / $totalTestsOverall) * 100, 2)
+    $failedTestsOverall = $totalTestsOverall - $passedTestsOverall
     "                    <tr><td><strong>Total Tests:</strong></td><td>$totalTestsOverall</td></tr>" | Out-File $indexFile -Append -Encoding utf8
     "                    <tr><td><strong>Passed Tests:</strong></td><td>$passedTestsOverall</td></tr>" | Out-File $indexFile -Append -Encoding utf8
     "                    <tr><td><strong>Overall Pass Percentage:</strong></td><td>$overallPass%</td></tr>" | Out-File $indexFile -Append -Encoding utf8
@@ -185,8 +186,50 @@ if ($totalTestsOverall -gt 0) {
 @"
                 </tbody>
             </table>
+            <canvas id="overallPieChart" width="300" height="300" style="margin-top: 20px;"></canvas>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('overallPieChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Passed Tests', 'Failed Tests'],
+                    datasets: [{
+                        data: [$passedTestsOverall, $($totalTestsOverall - $passedTestsOverall)],
+                        backgroundColor: ['#28a745', '#dc3545'],
+                        borderColor: ['#ffffff', '#ffffff'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#333',
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Overall Execution Summary',
+                            color: '#0056b3',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
 "@ | Out-File $indexFile -Append -Encoding utf8
