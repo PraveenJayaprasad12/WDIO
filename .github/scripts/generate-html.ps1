@@ -142,7 +142,7 @@ Get-ChildItem -Directory "reports" | ForEach-Object {
 
             if ($totalTests -gt 0) {
                 $passPercent = [math]::Round(($passedTests / $totalTests) * 100, 2)
-                $passPercentageText = "<span class='percentage'>Pass: $passPercent%</span>"
+                $passPercentageText = "<span class='percentage'>$passPercent%</span>"
             }
         }
     }
@@ -172,7 +172,7 @@ if ($runDate) {
     "                    <tr><td><strong>Date:</strong></td><td>$runDate</td></tr>" | Out-File $indexFile -Append -Encoding utf8
 }
 if ($runUrl) {
-    "                    <tr><td><strong>GitHub Run:</strong></td><td><a href='$runUrl' target='_blank'>$runUrl</a></td></tr>" | Out-File $indexFile -Append -Encoding utf8
+    "                    <tr><td><strong>GitHub Run:</strong></td><td><a href='$runUrl' target='_blank'>Click Here</a></td></tr>" | Out-File $indexFile -Append -Encoding utf8
 }
 
 if ($totalTestsOverall -gt 0) {
