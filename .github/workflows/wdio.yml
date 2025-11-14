@@ -101,6 +101,7 @@ jobs:
 
 
       - name: Generate styled index.html
+        id: generate 
         shell: powershell
         run: |
           $runUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
@@ -127,3 +128,18 @@ jobs:
           git commit -m "Deploy reports to GitHub Pages"
           $repoUrl = "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git push --force $repoUrl gh-pages
+      - name: Print Test Summary Table
+        shell: pwsh
+        run: |
+          $total = '${{ steps.generate.outputs.totalTestsOverall }}'
+          $passed = '${{ steps.generate.outputs.passedTestsOverall }}'
+          $percent = '${{ steps.generate.outputs.passPercentage }}'
+      
+          $rows = @(
+            [pscustomobject]@{ Metric="Total Tests"; Value=$total }
+            [pscustomobject]@{ Metric="Passed Tests"; Value=$passed }
+            [pscustomobject]@{ Metric="Pass %";      Value="$percent%" }
+          )
+      
+          Write-Host "`n===== Test Summary =====`n"
+          $rows | Format-Table -AutoSize
