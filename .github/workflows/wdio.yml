@@ -128,23 +128,3 @@ jobs:
           git commit -m "Deploy reports to GitHub Pages"
           $repoUrl = "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git push --force $repoUrl gh-pages
-      - name: Add test summary to run page
-        shell: pwsh
-        run: |
-          $total   = '${{ steps.generate.outputs.totalTestsOverall }}'
-          $passed  = '${{ steps.generate.outputs.passedTestsOverall }}'
-          $percent = '${{ steps.generate.outputs.passPercentage }}'
-      
-          $summary = @"
-          # 📊 Test Execution Summary
-          
-          | Metric        | Value |
-          |---------------|-------|
-          | Total Tests   | $total |
-          | Passed Tests  | $passed |
-          | Failed Tests  | $failed |
-          | Pass %        | $percent% |
-          
-          "@
-      
-          $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
