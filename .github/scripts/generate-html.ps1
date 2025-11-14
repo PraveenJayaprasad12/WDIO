@@ -234,8 +234,16 @@ if ($totalTestsOverall -gt 0) {
 </html>
 "@ | Out-File $indexFile -Append -Encoding utf8
 
-# Export summary values for GitHub Actions
-"totalTestsOverall=$totalTestsOverall"     | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-"passedTestsOverall=$passedTestsOverall"   | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-"passPercentage=$([math]::Round(($passedTestsOverall / $totalTestsOverall) * 100, 2))" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+$summary = @"
+# 📊 Test Execution Summary
+
+| Metric        | Value |
+|---------------|-------|
+| Total Tests   | $totalTestsOverall |
+| Passed Tests  | $passedTestsOverall |
+| Pass %        | "$([math]::Round(($passedTestsOverall / $totalTestsOverall) * 100, 2))%" |
+
+"@
+
+$summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
 
