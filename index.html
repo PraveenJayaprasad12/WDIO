@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Reports Index</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #e3f2fd, #ffffff);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #004085;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px #b3d7ff;
+        }
+
+        .bottom-section {
+            display: flex;
+            justify-content: space-between;
+            flex-grow: 1;
+        }
+
+        .report-links, .execution-details {
+            width: 48%;
+            background: linear-gradient(135deg, #ffffff, #e7f1ff);
+            border: 1px solid #b3d7ff;
+            border-radius: 12px;
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .report-links:hover, .execution-details:hover {
+            transform: translateY(-2px);
+        }
+
+        .report-links h2, .execution-details h2 {
+            margin-top: 0;
+            color: #0056b3;
+            font-size: 20px;
+            border-bottom: 2px solid #b3d7ff;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        th {
+            background: linear-gradient(145deg, #007bff, #339bff);
+            color: white;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+        }
+
+        tr:hover {
+            background-color: #f1f9ff;
+            transition: background-color 0.2s;
+        }
+
+        td a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        td a:hover {
+            text-decoration: underline;
+        }
+
+        .percentage {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Test Suite Reports</h1>
+
+    <div class="bottom-section">
+        <div class="report-links">
+            <h2>Report Links</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Report</th>
+                        <th>Pass %</th>
+                    </tr>
+                </thead>
+                <tbody>
+<tr><td><a href="regression HTML/reports/test-report.html">regression HTML - test-report.html</a></td><td><span class='percentage'>58.75%</span></td></tr>
+<tr><td><a href="smoke HTML/reports/test-report.html">smoke HTML - test-report.html</a></td><td><span class='percentage'>58.75%</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="execution-details">
+            <h2>Execution Details</h2>
+            <table>
+                <tbody>
+                    <tr><td><strong>Date:</strong></td><td>2025-11-14 10:17</td></tr>
+                    <tr><td><strong>GitHub Run:</strong></td><td><a href='https://github.com/PraveenJayaprasad12/WDIO/actions/runs/19361425161' target='_blank'>Click Here</a></td></tr>
+                    <tr><td><strong>Total Tests:</strong></td><td>800</td></tr>
+                    <tr><td><strong>Passed Tests:</strong></td><td>470</td></tr>
+                    <tr><td><strong>Overall Pass Percentage:</strong></td><td>58.75%</td></tr>
+                </tbody>
+            </table>
+            <canvas id="overallPieChart" width="300" height="300" style="margin-top: 20px;"></canvas>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('overallPieChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Passed Tests', 'Failed Tests'],
+                    datasets: [{
+                        data: [470, 330],
+                        backgroundColor: ['#28a745', '#dc3545'],
+                        borderColor: ['#ffffff', '#ffffff'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#333',
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Overall Execution Summary',
+                            color: '#0056b3',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
